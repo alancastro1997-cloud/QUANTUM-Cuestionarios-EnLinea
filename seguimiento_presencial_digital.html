@@ -17,7 +17,7 @@
   (emparejado por teléfono — mismo mecanismo seguro de la Sección 17 de la
   guía) y se lo manda a Claude como contexto. El campo de "plan anterior" de
   este formulario es solo un respaldo manual opcional, por si el paciente es
-  nuevo en el expediente digital o querés forzar contexto extra.
+  nuevo en el expediente digital o quieres forzar contexto extra.
 -->
 
 <style>
@@ -218,7 +218,7 @@ var SECTIONS = [
   { id:"reevaluacion", eyebrow:"Sección 1", title:"Reevaluación general", fields:[
       {id:"peso_actual", type:"number", label:"Peso actual", hint:"kg"},
       {id:"cambios_antropometricos", type:"textarea", label:"Cambios antropométricos relevantes",
-        hint:"Circunferencias, % grasa, InBody, etc. — si no se midió hoy, dejalo en blanco"},
+        hint:"Circunferencias, % grasa, InBody, etc. — si no se midió hoy, déjalo en blanco"},
       {id:"adherencia_alimentacion", type:"radio", label:"Adherencia a la alimentación",
         options:["Excelente","Buena, con ajustes","Irregular","Baja"]},
       {id:"adherencia_entrenamiento", type:"radio", label:"Adherencia al entrenamiento",
@@ -232,7 +232,7 @@ var SECTIONS = [
     ]},
 
   { id:"fisica_dirigida", eyebrow:"Sección 2 · Opcional", title:"Reevaluación física dirigida",
-    note:"Solo si esta consulta incluye revisión de una lesión o zona específica (ej. seguimiento de una rehabilitación). Si no aplica, dejá esta sección en blanco y seguí.",
+    note:"Solo si esta consulta incluye revisión de una lesión o zona específica (ej. seguimiento de una rehabilitación). Si no aplica, deja esta sección en blanco y sigue.",
     fields:[
       {id:"escala_dolor", type:"scale", label:"Escala de dolor actual (EVA)", left:"Sin dolor", right:"Máximo dolor"},
       {id:"rom_tabla", type:"table", label:"ROM por articulación (si aplica)",
@@ -314,7 +314,7 @@ var SECTIONS = [
     ]},
 
   { id:"plan_anterior", eyebrow:"Sección 5", title:"Plan anterior (respaldo manual opcional)",
-    note:"El sistema busca automáticamente el plan más reciente de este paciente en su expediente (por teléfono). Usá el campo de abajo SOLO si querés agregar contexto extra, o si el paciente todavía no tiene expediente digital (primera vez que se usa este formulario con él).",
+    note:"El sistema busca automáticamente el plan más reciente de este paciente en su expediente (por teléfono). Usa el campo de abajo SOLO si quieres agregar contexto extra, o si el paciente todavía no tiene expediente digital (primera vez que se usa este formulario con él).",
     fields:[
       {id:"plan_anterior_manual", type:"textarea", label:"Contexto adicional sobre el plan anterior (opcional)"}
     ]},
