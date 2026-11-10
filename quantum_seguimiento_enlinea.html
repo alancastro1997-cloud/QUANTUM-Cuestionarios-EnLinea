@@ -148,8 +148,18 @@ var FIELDS = [
   // El teléfono es la ÚNICA clave con la que el sistema reconoce tu expediente
   // y encuentra tu plan anterior. Sin él se crea un expediente nuevo cada vez.
   {id:"telefono", type:"text", label:"¿Cuál es tu teléfono / WhatsApp?", placeholder:"10 dígitos, el mismo que diste la primera vez", required:true},
+  // Datos con los que el sistema calcula tu edad, tus macros y filtra los alimentos (mismos nombres de campo que lee el pipeline).
+  {id:"fecha_nacimiento", type:"date", label:"¿Cuál es tu fecha de nacimiento? *", required:true, hint:"Con ella calculamos tu edad exacta."},
+  {id:"sexo", type:"row", label:"Sexo biológico *", required:true, options:["Masculino","Femenino"]},
+  {id:"talla", type:"number", label:"¿Cuánto mides? *", required:true, placeholder:"cm, entre 130 y 220"},
   {id:"peso", type:"slider", label:"¿Cuánto pesas actualmente?", min:30, max:250, unit:"kg", def:75},
   {id:"cinturaMin", type:"number", label:"Cintura (opcional, si la mides)", placeholder:"cm"},
+  {type:"divider"},
+  {id:"alergias", type:"multi", label:"¿Tienes alguna alergia conocida? *", required:true, hint:"Marca todas las que apliquen",
+    options:["Medicamentos (especificar abajo)","Alimentos (especificar abajo)","Látex","Contraste / yodo","Picaduras de insectos","Ninguna conocida"]},
+  {id:"alergenos_detalle", type:"textarea", label:"Especifica a qué", placeholder:"Nombre del medicamento o alimento",
+    showIf:function(a){return (a.alergias||[]).some(function(v){return v.indexOf("especificar")>-1;});}},
+  {id:"alimentos_evita", type:"text", label:"Alimentos que NO consumes o restricciones", placeholder:"Intolerancias, preferencias, religión. Si no hay, escribe «Ninguno»", hint:"Con esto ajustamos las alternativas de alimentos de tu plan."},
   {type:"divider"},
   {type:"note", text:"¿Qué tanto seguiste el plan desde tu última consulta?"},
   {id:"adherenciaAlim", type:"pill", label:"Alimentación", options:ADHERENCIA},
@@ -276,6 +286,18 @@ function renderField(f){
   if (f.type==="text"){
     return '<div class="field"><label class="q-label">'+esc(f.label)+'</label>'+hint+
       '<input type="text" value="'+esc(val||"")+'" placeholder="'+esc(f.placeholder||"")+'" oninput="SQ.onText(\''+f.id+'\',this.value)"></div>';
+  }
+  if (f.type==="date"){
+    return '<div class="field"><label class="q-label">'+esc(f.label)+'</label>'+hint+
+      '<input type="date" value="'+esc(val||"")+'" oninput="SQ.onText(\''+f.id+'\',this.value)"></div>';
+  }
+  if (f.type==="multi"){
+    var sel = Array.isArray(val) ? val : [];
+    var mchips = f.options.map(function(o){
+      var on = sel.indexOf(o)>-1 ? " selected":"";
+      return '<button type="button" class="opt-pill'+on+'" onclick="SQ.onMulti(\''+f.id+'\',\''+esc(o).replace(/'/g,"\\'")+'\')">'+esc(o)+'</button>';
+    }).join("");
+    return '<div class="field"><label class="q-label">'+esc(f.label)+'</label>'+hint+'<div class="opt-pill-row">'+mchips+'</div></div>';
   }
   if (f.type==="number"){
     return '<div class="field"><label class="q-label">'+esc(f.label)+'</label>'+hint+
@@ -441,12 +463,29 @@ window.SQ = {
     state.answers[id] = checked;
     doAutosave();
   },
+  onMulti: function(id, value){
+    var cur = Array.isArray(state.answers[id]) ? state.answers[id].slice() : [];
+    var i = cur.indexOf(value);
+    if (i>-1) cur.splice(i,1); else cur.push(value);
+    // «Ninguna conocida» excluye a las demás, y marcar otra la quita.
+    if (value==="Ninguna conocida" && i===-1) cur = ["Ninguna conocida"];
+    else if (value!=="Ninguna conocida") cur = cur.filter(function(v){return v!=="Ninguna conocida";});
+    state.answers[id] = cur;
+    doAutosave();
+    render();
+  },
   submitForm: function(){
-    var faltanRequeridos = FIELDS.some(function(f){
-      return f.required && (f.showIf ? f.showIf(state.answers) : true) && !state.answers[f.id];
+    var faltan = FIELDS.filter(function(f){
+      if (!f.required || (f.showIf && !f.showIf(state.answers))) return false;
+      var v = state.answers[f.id];
+      return !v || (Array.isArray(v) && !v.length);
     });
-    if (faltanRequeridos){
-      alert("Para poder enviar tu seguimiento necesitamos que aceptes el Aviso de Privacidad.");
+    if (faltan.length){
+      var aviso = faltan.some(function(f){return f.id==="aviso_privacidad_aceptado";});
+      var otros = faltan.filter(function(f){return f.id!=="aviso_privacidad_aceptado";}).map(function(f){return String(f.label).replace(/\s*\*$/,"");});
+      alert("Para poder enviar tu seguimiento necesitamos" +
+        (otros.length ? " estos datos: " + otros.join("; ") + "." : "") +
+        (aviso ? (otros.length ? " También necesitamos" : "") + " que aceptes el Aviso de Privacidad." : ""));
       return;
     }
     state.submitting = true; state.submitError=false; render();

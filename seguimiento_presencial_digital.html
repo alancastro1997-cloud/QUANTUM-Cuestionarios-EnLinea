@@ -212,7 +212,17 @@ var SECTIONS = [
     fields:[
       {id:"nombre_completo", type:"text", label:"Nombre completo", required:true},
       {id:"telefono", type:"text", label:"Teléfono / WhatsApp", required:true},
-      {id:"fecha_consulta", type:"date", label:"Fecha de esta consulta", required:true, defaultToday:true}
+      {id:"fecha_consulta", type:"date", label:"Fecha de esta consulta", required:true, defaultToday:true},
+      {id:"fecha_nacimiento", type:"date", label:"Fecha de nacimiento", required:true,
+        hint:"Con ella el sistema calcula la edad exacta para la hoja de macros y las alertas de seguridad."},
+      {id:"sexo", type:"radio", label:"Sexo biológico", required:true, options:["Masculino","Femenino"]},
+      {id:"talla", type:"number", label:"Talla", required:true, hint:"cm (entre 130 y 220)"},
+      {id:"alergias", type:"checkbox", label:"Alergias conocidas", required:true, hint:"Marca todas las que apliquen",
+        options:["Medicamentos (especificar abajo)","Alimentos (especificar abajo)","Látex","Contraste / yodo","Picaduras de insectos","Ninguna conocida"]},
+      {id:"alergenos_detalle", type:"textarea", label:"Especificar alérgenos",
+        showIf:function(a){return (a.alergias||[]).some(function(v){return v.indexOf("especificar")>-1;});}},
+      {id:"alimentos_evita", type:"text", label:"Alimentos que NO consume / restricciones",
+        hint:"Intolerancias, preferencias o religión. Si no hay ninguno, escribe «Ninguno». Con esto el sistema filtra las equivalencias de alimentos."}
     ]},
 
   { id:"reevaluacion", eyebrow:"Sección 1", title:"Reevaluación general", fields:[
